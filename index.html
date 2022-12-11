@@ -1,0 +1,87 @@
+<!doctype html> 
+<html lang="en"> 
+<head> 
+	<meta charset="UTF-8" />
+	<title>Phaser Template</title>
+  <link rel="stylesheet" href="css/style.css">	
+</head>
+<body>
+
+	<div id="wordsearch-wrap" class="row">
+		
+		
+
+		<div id="wordsearch" class="col">
+			<div id="modal">
+			<div class="inner-modal">
+				<div class="inner-inner">
+					<div class="img-container cf"><img src="./assets/blueribbon.png"></div>
+					<h3>Great Work!</h3>
+					<button id="modal-button" onclick="resetGame()">Replay</button>
+				</div>
+			</div>
+		</div>
+		</div>
+		<div id="wordlist" class="col">
+			<div class="inner">
+				<h3>Wordlist</h3>
+				<ul id="wordlist-list">
+					<li id="marijuana">marijuana </li>
+					<li id="cocaine">cocaine </li>
+					<li id="crack">crack </li>
+					<li id="ritalin">ritalin </li>
+					<li id="inhalants">inhalants </li>
+					<li id="lsd">lsd </li>
+					<li id="methamphetamine">methamphetamine </li>
+					<li id="heroin">heroin </li>
+					<li id="drugs">drugs </li>
+					<li id="dietpills">dietpills </li>
+					<li id="alcohol">alcohol </li>
+					<li id="tobacco">tobacco </li>
+					<li id="prescription">prescription </li>
+					<li id="unhealthy">unhealthy </li>
+					<li id="overthecounter">overthecounter</li>
+				</ul> 
+			</div>
+		</div>
+	</div>
+
+	<script type="text/javascript" src="js/phaser.min.js"></script>
+	<script type="text/javascript" src="js/boot.js"></script>
+	<script type="text/javascript" src="js/preload.js"></script>
+	<script type="text/javascript" src="js/gametitle.js"></script>
+	<script type="text/javascript" src="js/main.js"></script>
+	<script type="text/javascript" src="js/gameover.js"></script>
+  <script type="text/javascript">
+  	
+		function resetGame(){
+			game.state.restart();
+			var element = document.getElementById("modal");
+  		element.classList.remove("active");
+  		var list = document.getElementById("wordlist-list").getElementsByTagName('LI');
+  		for(x=0;x<list.length;x++){ list[x].classList.remove('found') }
+		}
+		(function() {
+
+
+				var width = document.getElementById('wordsearch').offsetWidth;
+				//Create a new game that fills the screen
+				height = window.innerHeight > 1024 ? 1024 : window.innerHeight;
+				width = width > 1280 ? 1280 : width;
+				game = new Phaser.Game(width, height, Phaser.AUTO, 'wordsearch');
+				
+				//Add all states
+				game.state.add("Boot", Boot);
+				game.state.add("Preload", Preload);
+				game.state.add("GameTitle", GameTitle);
+				game.state.add("Main", Main);
+				game.state.add("GameOver", GameOver);
+
+				//Start the first state
+				game.state.start("Boot");
+
+		})();
+
+  </script>
+</body>
+</html>

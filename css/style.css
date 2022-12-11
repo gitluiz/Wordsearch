@@ -1,0 +1,121 @@
+body { margin: 0 }
+.cf:before,
+.cf:after {content: " "; display: table; }
+.cf:after {clear: both; }
+#wordsearch-wrap.row {display: flex; flex-direction: row; align-items: stretch; font-family: 'Arial', sans-serif; max-width: 1400px;}
+#wordsearch-wrap h1, #wordsearch-wrap h2, #wordsearch-wrap h3, #wordsearch-wrap h4 { margin-top: 0; }
+#wordsearch-wrap, #wordsearch-wrap div {box-sizing: border-box; position: relative;}
+#wordsearch-wrap #wordsearch {max-width: 80%;min-width: 80%; }
+#wordsearch-wrap #wordlist {max-width: 20%;min-width: 20%;}
+#wordsearch-wrap #wordlist {background-color: #d4dde5; color: #324f80; font-size: 1.5em; padding: 20px; }
+#wordsearch-wrap #wordlist .inner {background-color: #fff; padding: 20px 10px; text-align: center; border-radius: 10px; height: 100%; }
+#wordsearch-wrap #wordlist ul {list-style: none; margin: 0; padding: 0; }
+#wordsearch-wrap #wordlist li {padding: 3px 0; }
+#wordsearch-wrap .found {animation: pulse 0.3s; transition: all 0.3s; color: #bc0000; text-decoration: line-through; }
+#wordsearch-wrap #modal {
+	background-color: rgba(0, 0, 0, 0.45);
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	 display: none;
+}
+
+#wordsearch-wrap #modal.active {display: block; }
+
+#wordsearch-wrap #modal.active .inner-modal {animation: bounce 0.5s; animation-fill-mode: forwards; }
+#wordsearch-wrap #modal .inner-modal h3 {
+    font-size: 4.5em;
+    color: #c08f29;
+    text-shadow: 2px 4px 4px #262121;
+    margin-bottom: 10px;
+    font-weight: bold;
+    position: relative;
+    margin-top: -30px;
+    top: -22px;} 
+#wordsearch-wrap #modal .inner-modal img {
+	width: 100%;
+}
+#wordsearch-wrap #modal .inner-modal {
+position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    background: #fff;
+    width: 480px;
+    text-align: center;
+    padding: 160px 20px 30px;
+    border-radius: 40px;
+    box-shadow: 0px 0px 56px -6px #202020;
+    /* opacity: 0; */
+    border: 5px solid #175ba3;
+}
+#wordsearch-wrap .img-container {
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 80px;
+    position: absolute !important;
+    left: 50%;
+    top: -5%;
+    transform: translate(-50%,-100%);
+    width: 150px;
+}
+button#modal-button {
+    border: none;
+    display: block;
+    margin: 0 auto;
+    font-size: 30px;
+    text-transform: uppercase;
+    padding: 8px 20px;
+    font-weight: bold;
+    border-radius: 5px;
+    box-shadow: 2px 2px 0px 0px #000;
+    color: #ffd243;
+    background-color: #175ba3;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+    outline-style: none;
+}
+button#modal-button:active {
+  position: relative;
+  top: 2px;
+	outline-style:none;
+  box-shadow: 2px 2px 0px 0px transparent;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scaleX(1)
+    }
+
+    50% {
+        transform: scale3d(1.4,1.4,1.4)
+    }
+
+    to {
+        transform: scaleX(1)
+    }
+}
+
+@keyframes bounce {
+    0% {
+        animation-timing-function: cubic-bezier(.215,.61,.355,1);
+        transform: translate(-50%,-50%);
+        opacity: 0;
+    }
+
+    50% {
+        animation-timing-function: cubic-bezier(.755,.05,.855,.06);
+        transform: translate(-50%,-10%);
+        opacity: 0.5;
+    }
+
+    to {
+        transform: translate(-50%,-50%);
+        opacity: 1;
+    }
+}
