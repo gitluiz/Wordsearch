@@ -1,1 +1,0 @@
-var phaser = require('phaser');

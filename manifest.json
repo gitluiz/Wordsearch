@@ -1,0 +1,19 @@
+{
+  "name": "SUAS 360 - 22 e 23 de Maio em Belo Horizonte - MG",
+  "description": "O SUAS 360 é um evento voltado para os profissionais do SUAS de todo o pais, o evento vai ocorrer 22 e 23 de Maio. Garanta já sua vaga",
+  "short_name": "SUAS360",
+  "lang": "pt-BR",
+  "icons": [
+    { "src": "assets/icon/favicon.ico", "type": "image/x-icon", "sizes": "16x16 32x32" },
+    { "src": "assets/icon/android-chrome-192x192.png", "type": "image/png", "sizes": "192x192" },
+    { "src": "assets/icon/android-chrome-512x512.png", "type": "image/png", "sizes": "512x512" },
+    { "src": "assets/icon/android-chrome-192x192.png", "type": "image/png", "sizes": "192x192", "purpose": "maskable" },
+    { "src": "assets/icon/android-chrome-512x512.png", "type": "image/png", "sizes": "512x512", "purpose": "maskable" }
+  ],
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#fff",
+  "theme_color": "#333",
+  "author": "Luiz A C Costa",
+  "orientation": "portrait"
+}

@@ -1,69 +1,161 @@
+const socket = io("https://wormworld-switch.herokuapp.com/");
+//const socket = io("http://localhost:4100");
+socket.connect();
 
-	  				// VERTICAL PLACEMENT
+let lastBlockRef = 0;
 
-						// check if the word is horizontal and if the row is reserved
-				  	// if( randomWord.orientation == 'h' && me.columns.indexOf(''+y+'') != -1){
+document.addEventListener("keypress", handleKeyPress);
+document.addEventListener("keydown", handleKeyDown);
 
-				  	// 	// check if any of the letters have reserved spots
-				  	// 	var unfit = false;
+socket.on("receive_word", handleReceiveWord);
+socket.on("receive_answer", handleReceiveAnswer);
 
-				  	// 	for( h=0; h<randomWord.word.split('').length; h++ ){
+const form = document.getElementById("form");
+const nickname = document.getElementById("nickname");
+form.addEventListener("submit", handleSubmitForm);
 
-				  	// 		var place = (x+h)+','+y;
+function handleSubmitForm(event) {
+  event.preventDefault();
+  const socket = io();
+  socket.emit("joinroom", {
+    nickname: nickname.value,
+    room: "brasil_01",
+  });
+  hideForm();
+  showGame();
+  setCurrentBlocks();
+}
 
-				  	// 		// if a letter in the word finds a reserved spot
-				  	// 		// it is not fit for that spot.
-				  	// 		if( me.isReservedSpot(place) ){
-				  	// 			unfit = true;
-				  	// 			break;
-				  	// 		}
-				  	// 	}
+function handleKeyPress(event) {
+  if (isGameHidden()) return;
+  const unoccupiedBlocks = getUnoccupiedBlocks();
+  if (!unoccupiedBlocks.length) return;
 
-				  	// 	// not unfit, push it into the reservation
-				  	// 	// and delete from the dictionary
-				  	// 	if( !unfit ){
+  const char = getUpperCaseCharacter(event.key);
+  if (isValidCharacter(char)) {
+    let ref = findFirstUnoccupiedBlock(unoccupiedBlocks);
+    unoccupiedBlocks[ref].innerHTML = char;
+    lastBlockRef = ref;
+  }
+}
 
-				  	// 		me.reserved.push({
-				  	// 			coord: place,
-				  	// 			letter: letter
-				  	// 		});
+function handleKeyDown(event) {
+  if (event.key !== "Backspace" || lastBlockRef < 0) return;
+  if (isGameHidden()) return;
 
-					  // 		me.deleteWordFromDictionary(me.chosenWord);
+  const unoccupiedBlocks = getUnoccupiedBlocks();
+  unoccupiedBlocks[lastBlockRef].innerHTML = "";
+  lastBlockRef--;
+}
 
-					  // 		//delete the row from reserved so no overlap
-				  	// 		me.columns.splice(me.columns.indexOf(''+y+''), 1);
+function handleReceiveWord(data) {
+  localStorage.setItem("wordId", data.id);
+}
 
-				  	// 	// move on to the next tile
-				  	// 	} else {
-				  	// 		continue;
-				  	// 	}
+function handleReceiveAnswer(data) {
+  giveHint(data.peso);
+  if (data.isCorrect) {
+    alert("Correct answer!");
+  }
+}
 
-				  	// }
+function giveHint(weight) {
+  const currentBlocks = getCurrentBlocks();
+  if (!currentBlocks.length) return;
+  weight.forEach((element, i) => {
+    if (element === 2) {
+      currentBlocks[i].classList.add("peso2");
+    }
+    if (element === 1) {
+      currentBlocks[i].classList.add("peso1");
+    }
+  });
+  lockCurrentBlocks();
+  setCurrentBlocks();
+}
 
+function submitAnswer() {
+  const wordId = localStorage.getItem("wordId");
+  const answer = getAnswer();
+  if (!answer) return;
 
-						/*// check if the word is horizontal and if the row is reserved
-				  	if( randomWord.orientation == 'h' && columns.indexOf(''+y+'') != -1){
+  socket.emit("submit_answer", { wordId, answer });
+}
 
-				  		randomWord.word.split('').forEach(function(letter, index, word){
+function getAnswer() {
+  const unoccupiedBlocks = getUnoccupiedBlocks();
+  const answer = getAnswerString(unoccupiedBlocks);
+  if (!answer) {
+    alert("You didn't enter any letters!");
+    return;
+  }
+  if (answer.length < 6) {
+    alert("You didn't enter all the letters!");
+    return;
+  }
+  return answer;
+}
 
-				  			var place = (x+index)+','+y;
+function getUpperCaseCharacter(char) {
+  const regex = /[a-zA-ZÁÀÃÂÄÉÈÊËẽÍÌÎÏÓÒÕÔÖÚÙÛÜÇ]/gim;
+  return regex.test(char) ? char.toUpperCase() : null;
+}
 
-				  			if( !me.isReservedSpot(place) ){
+function isValidCharacter(char) {
+  return char !== null;
+}
 
-					  			me.reserved.push({
-					  				coord: place,
-					  				letter: letter
-					  			});
-				  			}
+function findFirstUnoccupiedBlock(blocks) {
+  let ref = 0;
+  while (blocks[ref].innerHTML !== "") {
+    ref++;
+    if (ref === 6 || ref === blocks.length) {
+      return;
+    }
+  }
+  return ref;
+}
 
-				  		});
+function getUnoccupiedBlocks() {
+  return document.querySelectorAll(".block:not(.lock)");
+}
 
-				  		me.deleteWordFromDictionary(me.chosenWord);
+function getCurrentBlocks() {
+  return document.querySelectorAll(".block.current");
+}
 
-				  		//delete the column from reserved so no overlap
-				  		columns.splice(columns.indexOf(''+y+''), 1);
-				  	}*/
+function getAnswerString(blocks) {
+  let answer = "";
+  for (let i = 0; i < 6; i++) {
+    answer += blocks[i].innerHTML;
+  }
+  return answer.length === 0 ? null : answer;
+}
 
+function lockCurrentBlocks() {
+  const currentBlocks = getCurrentBlocks();
+  currentBlocks.forEach((block) => {
+    block.classList.add("lock");
+    block.classList.remove("current");
+  });
+}
 
+function setCurrentBlocks() {
+  const unoccupiedBlocks = getUnoccupiedBlocks();
+  if (!unoccupiedBlocks.length) return;
+  for (let i = 0; i < 6; i++) {
+    unoccupiedBlocks[i].classList.add("current");
+  }
+}
 
-				  	// if the tile coordinate matches the map, place the letter
+function isGameHidden() {
+  return document.getElementById("game").style.display === "none";
+}
+
+function hideForm() {
+  document.getElementById("form").style.display = "none";
+}
+
+function showGame() {
+  document.getElementById("game").style.display = "block";
+}

@@ -1,5 +1,38 @@
 {
   "dependencies": {
-    "express": "^4.18.2"
-  }
+    "cors": "^2.8.5",
+    "dotenv-safe": "^8.2.0",
+    "esm": "^3.2.25",
+    "express": "^4.18.2",
+    "redis": "^3.1.2",
+    "runes": "^0.4.3",
+    "socket.io": "^4.6.1",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "jest": "^29.4.3",
+    "nodemon": "^2.0.20",
+    "prettier": "^2.7.1"
+  },
+  "types": "module",
+  "scripts": {
+    "start": "node main.js",
+    "dev": "nodemon main.js"
+  },
+  "name": "wordsearch",
+  "description": "A word search game built on PhaserJS",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gitluiz/Wordsearch.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gitluiz/Wordsearch/issues"
+  },
+  "homepage": "https://github.com/gitluiz/Wordsearch#readme",
+  "type": "module"
 }

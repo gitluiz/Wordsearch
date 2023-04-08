@@ -1,87 +1,168 @@
-<!doctype html> 
-<html lang="en"> 
-<head> 
-	<meta charset="UTF-8" />
-	<title>Phaser Template</title>
-  <link rel="stylesheet" href="css/style.css">	
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="application-name" content="SUAS360">
+	<meta name="apple-mobile-web-app-title" content="SUAS360">
+	<meta name="theme-color" content="#ffffff">
+	<meta name="msapplication-navbutton-color" content="#ffffff">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+	<meta name="msapplication-starturl" content="/">
+	<link rel="manifest" href="/manifest.json">
+	<link rel="icon" href="assets/icon/favicon.ico" sizes="any">
+	<link rel="apple-touch-icon" href="assets/icon/icon-192x192.png">
+	<!-- <link href="css/bootstrap.min.css" rel="stylesheet"> -->
+	<link href="css/style.css" rel="stylesheet">
+	<title>SUAS360 Game</title>
 </head>
+
 <body>
-
-	<div id="wordsearch-wrap" class="row">
-		
-		
-
-		<div id="wordsearch" class="col">
-			<div id="modal">
-			<div class="inner-modal">
-				<div class="inner-inner">
-					<div class="img-container cf"><img src="./assets/blueribbon.png"></div>
-					<h3>Great Work!</h3>
-					<button id="modal-button" onclick="resetGame()">Replay</button>
-				</div>
-			</div>
+	<div class="header">
+		<div class="header-actions">
+			<button id="howtoplay"></button>
 		</div>
+		<div class="title">
+			<img src="assets/logo-branca-1536x289.png" alt="Caça-Palavra" style="width: 100%;">
+			<!-- <span>Caça-Palavra</span> -->
 		</div>
-		<div id="wordlist" class="col">
-			<div class="inner">
-				<h3>Wordlist</h3>
-				<ul id="wordlist-list">
-					<li id="marijuana">marijuana </li>
-					<li id="cocaine">cocaine </li>
-					<li id="crack">crack </li>
-					<li id="ritalin">ritalin </li>
-					<li id="inhalants">inhalants </li>
-					<li id="lsd">lsd </li>
-					<li id="methamphetamine">methamphetamine </li>
-					<li id="heroin">heroin </li>
-					<li id="drugs">drugs </li>
-					<li id="dietpills">dietpills </li>
-					<li id="alcohol">alcohol </li>
-					<li id="tobacco">tobacco </li>
-					<li id="prescription">prescription </li>
-					<li id="unhealthy">unhealthy </li>
-					<li id="overthecounter">overthecounter</li>
-				</ul> 
-			</div>
+		<div class="header-actions">
+			<button id="btnShare" style="visibility: hidden;"></button>
+			<!-- <button id="settings"></button> -->
 		</div>
 	</div>
+	<form pagina="home" style="min-width: 310px; max-width: 300px; margin: 5px auto;">
+		<div>
+			<label for="name" class="form-label">Nome</label>
+			<input type="text" class="form-control" id="name" name="name">
+		</div>
+		<br>
+		<div>
+			<label for="email" class="form-label">E-mail</label>
+			<input type="email" class="form-control" id="email" name="email">
+		</div>
+		<br>
+		<button type="submit" class="btn btn-primary">JOGAR</button>
+	</form>
+	<div pagina="game" class="game">
+		<div class="words"></div>
+		<span id="candidates-left" style="margin-top: 16px;"></span>
+		<div style="position: relative; margin-top: 16px;">
+			<div class="keyboard"></div>
+			<div class="end-actions">
+				<span id="word-answer"></span>
+				<span>Resposta</span>
+				<button id="playagain" tabindex="-1" onclick="onClickPlayAgain()">Jogar<br>Novamente</button>
+			</div>
+		</div>
 
-	<script type="text/javascript" src="js/phaser.min.js"></script>
-	<script type="text/javascript" src="js/boot.js"></script>
-	<script type="text/javascript" src="js/preload.js"></script>
-	<script type="text/javascript" src="js/gametitle.js"></script>
-	<script type="text/javascript" src="js/main.js"></script>
-	<script type="text/javascript" src="js/gameover.js"></script>
-  <script type="text/javascript">
-  	
-		function resetGame(){
-			game.state.restart();
-			var element = document.getElementById("modal");
-  		element.classList.remove("active");
-  		var list = document.getElementById("wordlist-list").getElementsByTagName('LI');
-  		for(x=0;x<list.length;x++){ list[x].classList.remove('found') }
-		}
-		(function() {
+		<div class="overlay">
+			<div class="howtoplay">
+				<button class="howtoplay-close"></button>
+				<b style="align-self: center; font-size: 17px;">COMO JOGAR</b>
+				<br>
+				<div class="howtoplay-context">
+					<p>
+						<span>Tente adivinhar a <b>palavra</b> em 6 tentativas.</span>
+						<span>Cada tentativa deve ser uma palavra válida de 6 letras. Pressione Enter para enviar uma
+							tentativa.</span>
+						<span>Após cada tentativa, a cor das letras irá mudar para indicar o quão perto sua tentativa
+							estava da
+							palavra.</span>
+					</p>
+					<br>
+					<div class="line-sep"></div>
+					<br>
+					<b>Exemplos</b>
+
+					<div style="display: flex;" class="letters-example">
+						<div style="border:none">1ª</div>
+						<div style="background: #538d4e; border-color: #538d4e;">P</div>
+						<div>E</div>
+						<div>I</div>
+						<div>X</div>
+						<div>E</div>
+						<div style="background: #b59f3b; border-color: #b59f3b;">S</div>
+					</div>
+					<span>A letra "P" está na palavra e na posição correta.</span>
+					<span>A letra "S" está na palavra, mas na posição errada.</span>
+					<strong style="color: #0066ff;">Acerta tudo 8 pontos "Fim de Jogo!"</strong>
+					<div style="display: flex;" class="letters-example">
+						<div style="border:none">2ª</div>
+						<div style="background: #538d4e; border-color: #538d4e;">P</div>
+						<div style="background: #b59f3b; border-color: #b59f3b;">R</div>
+						<div style="background: #b59f3b; border-color: #b59f3b;">A</div>
+						<div>Z</div>
+						<div>O</div>
+						<div style="background: #b59f3b; border-color: #b59f3b;">S</div>
+					</div>
+					<span>A letra "P" deve ficar na posição correta.</span>
+					<span>A letra "R" e "A" está na palavra, mas na posição errada.</span>
+					<strong style="color: #48f150;">Acerta tudo 5 pontos "Fim de Jogo!"</strong>
+					<div style="display: flex;" class="letters-example">
+						<div style="border:none">3ª</div>
+						<div style="background: #538d4e; border-color: #538d4e;">P</div>
+						<div style="background: #538d4e; border-color: #538d4e;">A</div>
+						<div style="background: #538d4e; border-color: #538d4e;">S</div>
+						<div>M</div>
+						<div>U</div>
+						<div style="background: #538d4e; border-color: #538d4e;">A</div>
+					</div>
+					<span>A letra U não está na palavra em nenhuma posição.</span>
+					<strong style="color: #f3e521;">Acerta tudo 3 pontos "Fim de Jogo!"</strong>
+					<div style="display: flex;" class="letters-example">
+						<div style="border:none">4ª</div>
+						<div style="background: #538d4e; border-color: #538d4e;">P</div>
+						<div style="background: #538d4e; border-color: #538d4e;">A</div>
+						<div style="background: #538d4e; border-color: #538d4e;">S</div>
+						<div style="background: #538d4e; border-color: #538d4e;">S</div>
+						<div style="background: #538d4e; border-color: #538d4e;">A</div>
+						<div style="background: #538d4e; border-color: #538d4e;">R</div>
+					</div>
+					<span>Sucesso!!</span>
+					<strong style="color: #c79715;">Acerta tudo 2 pontos "Fim de Jogo!"</strong>
+					<div style="display: flex;" class="letters-example">
+						<div style="border:none">5ª</div>
+						<div style="border:none">e</div>
+						<div style="border:none">6ª</div>
+					</div>
+					<strong style="color: #c76b15;">Acerta tudo 1 pontos "Fim de Jogo!"</strong>
+					<br>
+					<br>
+					<br>
+				</div>
 
 
-				var width = document.getElementById('wordsearch').offsetWidth;
-				//Create a new game that fills the screen
-				height = window.innerHeight > 1024 ? 1024 : window.innerHeight;
-				width = width > 1280 ? 1280 : width;
-				game = new Phaser.Game(width, height, Phaser.AUTO, 'wordsearch');
-				
-				//Add all states
-				game.state.add("Boot", Boot);
-				game.state.add("Preload", Preload);
-				game.state.add("GameTitle", GameTitle);
-				game.state.add("Main", Main);
-				game.state.add("GameOver", GameOver);
+			</div>
+			<div class="settings">
+				<button class="settings-close"></button>
+				<br>
+				<b style="align-self: center; font-size: 17px;">CONFIGURAÇÕES
+			</div>
+		</div>
+		<div class="backdrop"></div>
+	</div>
+	<div class="modal">
+		<button class="modal-close"></button>
+		<div class="modal-title"></div>
+		<div class="modal-content"></div>
+	</div>
+	<div class="bg-img"></div>
+	<!-- Scripts -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+	<script src="https://unpkg.com/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+	<script src="https://unpkg.com/tippy.js@6.3.2/dist/tippy-bundle.umd.min.js"></script>
+	<script src="js/game.js"></script>
 
-				//Start the first state
-				game.state.start("Boot");
-
-		})();
-
-  </script>
+	<div>
+		<script async
+			src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7201091343317981"
+			crossorigin="anonymous"></script>
+	</div>
 </body>
+
 </html>
