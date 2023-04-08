@@ -620,7 +620,7 @@ function share() {
   const shareData = {
     title: "Venha Jogar",
     text: "Me ajude a adivinhar a palavra",
-    url: location.host +  "/?id=" + playerCurrent.id,
+    url: location.host + "/?id=" + playerCurrent.id,
   };
 
   if (navigator.share) {
@@ -784,6 +784,7 @@ function onEndGame(toastDuration = 1.5e3) {
       document.body.classList.add("game-over");
     });
   }, toastDuration);
+  getApiUrl("onEndGame", state.wordsTried.length);
 }
 
 function onClickPlayAgain() {
@@ -1085,41 +1086,50 @@ function setupUI() {
 
 function onInit() {
   loadState();
+  const isPresent = playerCurrent && playerCurrent.isPresent;
+  const rules = [
+    isPresent ? state.gamesPlayed < 3 : true 
+  ]
+  if (rules[0]) {
+    window.addEventListener("keydown", onType, { capture: true });
 
-  window.addEventListener("keydown", onType, { capture: true });
+    setupDictionary();
+    setupUI();
 
-  setupDictionary();
-  setupUI();
-
-  const url = new URL(window.location);
-  const urlWord = url.searchParams.get("word");
-  if (urlWord) {
-    resetGame();
-    const word = getWordToGuess(urlWord);
-    if (word) {
-      state.wordToGuess = word;
-      displayToast("Adivinhe a palavra dada pelo link!", 3 * 1e3);
-      const newUrl = new URL(window.location);
-      newUrl.searchParams.delete("word");
-      window.history.replaceState({}, document.title, newUrl.toString());
-    } else {
-      displayToast(
-        "Palavra do link é inválida.\nUsará palavra aleatória",
-        8 * 1e3
-      );
-    }
-  } else if (!state.wordToGuess) {
-    resetGame();
-  }
-
-  setupForCurrentState();
-
-  if (isGameOver()) {
-    setTimeout(() => {
-      if (isGameOver()) {
-        onEndGame();
+    const url = new URL(window.location);
+    const urlWord = url.searchParams.get("word");
+    if (urlWord) {
+      resetGame();
+      const word = getWordToGuess(urlWord);
+      if (word) {
+        state.wordToGuess = word;
+        displayToast("Adivinhe a palavra dada pelo link!", 3 * 1e3);
+        const newUrl = new URL(window.location);
+        newUrl.searchParams.delete("word");
+        window.history.replaceState({}, document.title, newUrl.toString());
+      } else {
+        displayToast(
+          "Palavra do link é inválida.\nUsará palavra aleatória",
+          8 * 1e3
+        );
       }
-    }, 1e3);
+    } else if (!state.wordToGuess) {
+      resetGame();
+    }
+
+    setupForCurrentState();
+
+    if (isGameOver()) {
+      setTimeout(() => {
+        if (isGameOver()) {
+          onEndGame();
+        }
+      }, 1e3);
+    }
+  } else {
+    document.querySelector(".game").classList.add("game-over-p2");
+    document.querySelector(".game").innerText =
+      "Jogo finalizado.\nObrigado por jogar!";
   }
 }
 
@@ -1167,8 +1177,34 @@ async function getApiUrl(action, params) {
       // Mostre uma mensagem de erro ao usuário ou faça algo apropriado
     }
   }
+  if (action === "onEndGame") {
+    try {
+      const response = await fetch("/register-play", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: playerCurrent.id,
+          scoreRefer: params,
+        }),
+      });
 
-  
+      if (response.status === 400) {
+        alert("Ponto não registrado.");
+      }
+
+      const data = await response.json();
+      data.status = 200;
+      // Faça algo com o ID de usuário, como armazená-lo localmente ou usá-lo para outras requisições
+
+      retorno = data; // Atribuir o objeto de dados retornado à variável 'retorno'
+    } catch (error) {
+      console.error("Erro no cadastro:", error.message);
+      // Mostre uma mensagem de erro ao usuário ou faça algo apropriado
+    }
+  }
+
   if (action === "leaderboardAdd") {
     // Adicionar jogador ao ranking
     fetch(`//${room}/add`, {
@@ -1178,10 +1214,10 @@ async function getApiUrl(action, params) {
       },
       body: JSON.stringify(player),
     })
-    .then((res) => res.json())
-    .then((leaderboard) => {
-      // Atualize a tabela de classificação no cliente com a nova classificação
-    });
+      .then((res) => res.json())
+      .then((leaderboard) => {
+        // Atualize a tabela de classificação no cliente com a nova classificação
+      });
   }
   if (action === "leaderboardRemove") {
     // Remover jogador do ranking
@@ -1195,40 +1231,43 @@ async function getApiUrl(action, params) {
       // Atualize a tabela de classificação no cliente após a remoção do jogador
     });
   }
-  
+
   if (action === "leaderboardTop10") {
     // Obter o ranking (Top 10)
     fetch(`/leaderboard/${room}/top10`)
-    .then((res) => res.json())
-    .then((leaderboard) => {
-      // Atualize a tabela de classificação no cliente com o top 10
-    });
+      .then((res) => res.json())
+      .then((leaderboard) => {
+        // Atualize a tabela de classificação no cliente com o top 10
+      });
   }
   if (action === "leaderboardTop3") {
     // Obter o ranking (Top 3)
     fetch(`/leaderboard/${room}/top3`)
-    .then((res) => res.json())
-    .then((leaderboard) => {
-      // Atualize a tabela de classificação no cliente com o top 3
-    });
+      .then((res) => res.json())
+      .then((leaderboard) => {
+        // Atualize a tabela de classificação no cliente com o top 3
+      });
   }
-  return retorno; 
+  return retorno;
 }
 
 var playerCurrent = loadPlayer();
 const urlParams = new URLSearchParams(window.location.search);
-const id = urlParams.get('id');
+const id = urlParams.get("id");
 
-if (id) {
+if (id && !playerCurrent.isPresent) {
   playerCurrent = {};
   playerCurrent.id = id;
+  playerCurrent.isPresent = false;
 }
 
-if(playerCurrent){
+if (playerCurrent && playerCurrent.id) {
   document.querySelector('[pagina="game"]').style.display = "block";
   document.querySelector('[pagina="home"]').style.display = "none";
+
   onInit();
-  if(playerCurrent.isPresent){
+
+  if (playerCurrent.isPresent) {
     btnShare.style.visibility = "visible";
   }
 }

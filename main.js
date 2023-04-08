@@ -2,7 +2,7 @@ import express from "express";
 import path from "path";
 import dotenv from "dotenv-safe";
 import cors from "cors";
-import { createClient } from "redis";
+import Redis from "ioredis";
 import RoomStoreLeaderboard from "./classes/RoomStoreLeaderboard.js";
 
 import { v4 as uuidv4 } from "uuid";
@@ -35,7 +35,7 @@ app.listen(PORT, () => {
   console.log("SOCKET listening on port " + PORT);
 });
 
-const pubClient = createClient(process.env.REDISCLOUD_URL);
+const pubClient = new Redis(process.env.REDISCLOUD_URL);
 
 const redisRoomStore = new RoomStoreLeaderboard(pubClient);
 
@@ -114,12 +114,12 @@ async function emailExists(email) {
 
   // Se encontrou um usuário com o mesmo e-mail, retorna o ID do usuário
   if (result) {
-    if(result.id == true || result.id == false){
+    if (result.id == true || result.id == false) {
       result.id = generateUserId();
       redisRoomStore.saveUser({
         email: email,
         id: result.id,
-      });      
+      });
     }
     return result.id;
   }
@@ -142,7 +142,8 @@ app.post("/register", async (req, res) => {
       const userId = generateUserId();
 
       // Salvar o e-mail e o UUID do usuário no Redis
-      const saved = await redisRoomStore.saveUser({
+      const saved = await redisRoomStore.saveUserComplete({
+        name: user.name,
         email: user.email,
         id: userId,
       });
@@ -160,10 +161,60 @@ app.post("/register", async (req, res) => {
   }
 });
 
-const middlewareSetRoom = function (req, next) {
+const middlewareSetRoom = function (req, res, next) {
   const room = (req.params.room = "SUAS360");
   next();
 };
+app.get("/ranking/:room", async (req, res) => {
+  try {
+    const codRoom = req.params.room;
+
+    const top3 = await redisRoomStore.leaderboardFull(codRoom, "top3");
+    const top10 = await redisRoomStore.leaderboardFull(codRoom, "top10");
+
+    res.json({ top3, top10 });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to retrieve ranking" });
+  }
+});
+app.post("/register-play", middlewareSetRoom, async (req, res) => {
+  try {
+    const play = req.body;
+
+    const tabelaPonto = {
+      1: 8,
+      2: 5,
+      3: 3,
+      4: 2,
+      5: 1,
+      6: 0,
+    };
+    const score = tabelaPonto[play.scoreRefer] || 0;
+    const refer = play.refer || play.id;
+
+    const room = nameRoom(req.params.room);
+    const player = {};
+
+    // Buscar informações do usuário pelo e-mail
+    const userInfo = await redisRoomStore.getUserById(refer);
+
+    if (userInfo) {
+      // Atualizar as informações do jogador com as informações do usuário
+      player.id = userInfo.id;
+      player.name = userInfo.name;
+      player.score = (userInfo.score || 0) + score; // Adicionar a pontuação atual à pontuação acumulada
+
+      // Adicione o jogador ao ranking usando sua lógica atual
+      const leaderboard = await redisRoomStore.addLeaderboardAc(room, player);
+
+      res.json(leaderboard);
+    } else {
+      res.status(404).json({ error: "User not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ error: "Failed to save user" });
+  }
+});
 
 // Adicionar jogador ao ranking
 app.post("/leaderboard/:room/add", middlewareSetRoom, async (req, res) => {

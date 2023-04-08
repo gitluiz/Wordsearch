@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="application-name" content="SUAS360">
+	<meta name="apple-mobile-web-app-title" content="SUAS360">
+	<meta name="theme-color" content="#ffffff">
+	<meta name="msapplication-navbutton-color" content="#ffffff">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+	<meta name="msapplication-starturl" content="/">
+	<link rel="manifest" href="/manifest.json">
+	<link rel="icon" href="assets/icon/favicon.ico" sizes="any">
+	<link rel="apple-touch-icon" href="assets/icon/icon-192x192.png">
+	<!-- <link href="css/bootstrap.min.css" rel="stylesheet"> -->
+	<link href="css/style.css" rel="stylesheet">
+	<title>SUAS360 Game</title>
+	<style>
+		table {
+			border-collapse: collapse;
+			width: 100%;
+		}
+
+		th,
+		td {
+			border: 1px solid rgb(255, 255, 255);
+			padding: 8px;
+			text-align: left;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="header">
+		<div class="header-actions">
+			<button id="howtoplay"></button>
+		</div>
+		<div class="title">
+			<img src="assets/logo-branca-1536x289.png" alt="Caça-Palavra" style="width: 100%;">
+			<!-- <span>Caça-Palavra</span> -->
+		</div>
+	</div>
+	<h3 style="text-align: center;">Ranking</h3>
+	<div class="bg-img"></div>
+
+	<body>
+		<table id="ranking" style="width: 420px; margin: 0 auto;">
+			<thead>
+				<tr>
+					<th>Nº</th>
+					<th>Nome</th>
+					<th>Pontuação</th>
+				</tr>
+			</thead>
+			<tbody>
+			</tbody>
+		</table>
+
+		<script>
+			async function fetchRanking() {
+				const codRoom = 'SUAS360';
+				const response = await fetch(`/ranking/${codRoom}`);
+				const data = await response.json();
+				return data.top10;
+			}
+
+			async function displayRanking() {
+				const ranking = await fetchRanking();
+				const tableBody = document.querySelector('#ranking tbody');
+
+				ranking.forEach((player, index) => {
+					const row = document.createElement('tr');
+
+					const positionCell = document.createElement('td');
+					positionCell.textContent = index + 1;
+					row.appendChild(positionCell);
+
+					const nicknameCell = document.createElement('td');
+					nicknameCell.textContent = player.name + ' ' + player.email;
+					row.appendChild(nicknameCell);
+
+					const scoreCell = document.createElement('td');
+					scoreCell.textContent = player.score;
+					row.appendChild(scoreCell);
+
+					tableBody.appendChild(row);
+				});
+			}
+
+			displayRanking();
+		</script>
+	</body>
+
+</html>

@@ -66,7 +66,7 @@ export default class RoomStoreLeaderboard {
         await this.redisClient.zadd(
           `top3_${codRoom}`,
           parseInt(player.score),
-          `${player.refer}:${sanitizePlayerName(player.nickname)}`
+          `${player.refer}`
         );
         top3 = await this.leaderboard(codRoom, "top3");
       }
@@ -76,7 +76,56 @@ export default class RoomStoreLeaderboard {
           parseInt(player.score),
           `${player.refer}:${sanitizePlayerName(player.nickname)}`
         );
-        
+
+        top10 = await this.leaderboard(codRoom, "top10");
+      }
+      return { top3, top10 };
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
+
+  async addLeaderboardAc(codRoom, player) {
+    try {
+      let top3 = await this.leaderboard(codRoom, "top3");
+      let top10 = await this.leaderboard(codRoom, "top10");
+
+      const stayOnTop3 =
+        top3 === false ||
+        top3.length < 3 ||
+        player.score > top3[top3.length - 1].score;
+
+      const stayOnTop10 =
+        top10 === false ||
+        top10.length < 10 ||
+        player.score > top10[top10.length - 1].score;
+
+      // Obter a pontuação atual do jogador
+      const currentScore = await this.redisClient.zscore(
+        `top10_${codRoom}`,
+        `${player.id}`
+      );
+
+      const newScore = currentScore
+        ? parseInt(currentScore) + player.score
+        : player.score;
+
+      if (stayOnTop3) {
+        await this.redisClient.zadd(
+          `top3_${codRoom}`,
+          newScore,
+          `${player.id}`
+        );
+        top3 = await this.leaderboard(codRoom, "top3");
+      }
+      if (stayOnTop10) {
+        await this.redisClient.zadd(
+          `top10_${codRoom}`,
+          newScore,
+          `${player.id}`
+        );
+
         top10 = await this.leaderboard(codRoom, "top10");
       }
       return { top3, top10 };
@@ -129,10 +178,60 @@ export default class RoomStoreLeaderboard {
     }
   }
 
+  async leaderboardFull(codRoom, refer) {
+    try {
+      const result = await new Promise((resolve, reject) => {
+        this.redisClient.zrevrange(
+          `${refer}_${codRoom}`,
+          0,
+          10,
+          "WITHSCORES",
+          (err, result) => {
+            if (err) reject(err);
+            console.log("plain range:", result);
+            resolve(result);
+          }
+        );
+      });
+
+      if (result.length === 0) {
+        return [];
+      }
+
+      const members = [];
+      for (let i = 0; i < result.length; i += 2) {
+        const [refer, nickname] = result[i].split(":");
+        const score = parseInt(result[i + 1]);
+
+        // Buscar informações do usuário pelo ID (refer)
+        const user = await this.redisClient.hgetall(`user:${refer}`);
+
+        if (user) {
+          members.push({
+            refer,
+            name: user.name,
+            email: user.email,
+            nickname,
+            score,
+          });
+        } else {
+          members.push({ refer, nickname, score });
+        }
+      }
+      return members;
+    } catch (error) {
+      console.error(
+        `Error retrieving leaderboard for room ${refer}_${codRoom}:`,
+        error
+      );
+      return [];
+    }
+  }
+
   async saveUser(user) {
     try {
       // Usar o e-mail como chave e UUID como valor
-      await this.redisClient.set(user.email, user.id); 
+      await this.redisClient.set(user.email, user.id);
       return true;
     } catch (error) {
       console.error("Error saving user:", error);
@@ -140,11 +239,48 @@ export default class RoomStoreLeaderboard {
     }
   }
 
+  async saveUserComplete({ name, email, id }) {
+    try {
+      // Substitua o código abaixo pela lógica de salvar o nome, e-mail e ID do usuário no seu banco de dados
+      await this.redisClient.hmset(`user:${id}`, {
+        name,
+        email,
+      });
+
+      return true;
+    } catch (error) {
+      console.error("Failed to save user:", error);
+      return false;
+    }
+  }
+  async getUserById(id) {
+    try {
+      const userInfo = await this.redisClient.hgetall(`user:${id}`);
+      if (userInfo) {
+        return { ...userInfo, id };
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.error(`Error retrieving user by id ${id}:`, error);
+      return null;
+    }
+  }
   async getUserByEmail(email) {
     try {
       const userId = await this.redisClient.get(email);
-      if (userId) {
-        return { email, id: userId };
+      if (userId && userId !== true) {
+        // Obter as informações adicionais do usuário
+        const userInfo = await this.redisClient.hgetall(`user:${userId}`);
+        const { name } = userInfo;
+
+        // Obter a pontuação do usuário
+        const score = await this.redisClient.zscore(
+          `top10_${userId.split(":")[0]}`, // Use o código da sala (codRoom) do ID do usuário
+          `${userId}:${sanitizePlayerName(name)}`
+        );
+
+        return { name, email, id: userId, score: parseInt(score) };
       } else {
         return null;
       }
@@ -153,5 +289,4 @@ export default class RoomStoreLeaderboard {
       return null;
     }
   }
-
 }
