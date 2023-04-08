@@ -1,52 +1,3 @@
-const pages = document.querySelectorAll("[pagina]");
-const form = document.querySelector("form");
-
-// adiciona ouvinte de eventos para o evento "click" nos links de navegação
-document.querySelectorAll(".link").forEach((link) => {
-  link.addEventListener("click", (event) => {
-    event.preventDefault();
-    const pagina = link.getAttribute("href").replace("#", "");
-    // oculta todas as páginas
-    pages.forEach((page) => {
-      page.style.display = "none";
-    });
-    // exibe a página correspondente ao link clicado
-    document.querySelector(`[pagina="${pagina}"]`).style.display = "block";
-  });
-});
-function validateEmail(email) {
-  const regex = /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/;
-  return regex.test(email);
-}
-
-form.addEventListener("submit", async (event) => {
-  event.preventDefault(); // impede que o formulário seja enviado e a página seja atualizada
-  const name = document.querySelector("#name").value;
-  const email = document.querySelector("#email").value;
-
-  if (name.trim() === "" || email.trim() === "") {
-    alert("Por favor, preencha todos os campos.");
-    return;
-  }
-
-  if (!validateEmail(email)) {
-    alert("Por favor, insira um e-mail válido.");
-    return;
-  }
-
-  document.querySelector('[pagina="game"]').style.display = "block";
-  document.querySelector('[pagina="home"]').style.display = "none";
-  const retorno = await getApiUrl("register", { name, email });
-  if (retorno.status === 200) {
-    alert("Cadastro realizado com sucesso! Bem vindo ao jogo!");
-    btnShare.style.visibility = "visible";
-    retorno.isPresent = true;
-    savePlayer(retorno);
-    console.log(retorno);
-    onInit();
-  }
-});
-
 const dictionaries = {};
 const state = {
   config: {
@@ -103,18 +54,8 @@ const SVG_CLOSE =
   '<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>';
 const SVG_BACKSPACE =
   '<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path fill="currentColor" d="M22 3H7c-.69 0-1.23.35-1.59.88L0 12l5.41 8.11c.36.53.9.89 1.59.89h15c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H7.07L2.4 12l4.66-7H22v14zm-11.59-2L14 13.41 17.59 17 19 15.59 15.41 12 19 8.41 17.59 7 14 10.59 10.41 7 9 8.41 12.59 12 9 15.59z"></path></svg>';
-const wordsGuessable = [
-  "cigar",
-  "rebut",
-  "sissy",
-  "humph",
-  "awake",
-  "blush",
-  "focal",
-  "evade",
-  "naval",
-  "serve",
-];
+const wordsGuessable = ['gesuas', 'abrigo', 'aborda', 'riscos', 'social', 'pessoa', 'pobres', 'locais', 'brasil', 'faltar', 'acolhe', 'visita', 'doente', 'casais', 'comida', 'ativas', 'tutela', 'regras', 'mental', 'gestão', 'custos', 'vícios', 'portal', 'jovens', 'adulto', 'filhos', 'central', 'grupos', 'método', 'função', 'divide', 'acesso', 'bairro', 'igreja', 'ensino', 'fulano', 'normas', 'textos', 'dentro', 'fiscal', 'acordo', 'manual', 'exames', 'cidade', 'buscou', 'núcleo', 'cuidar', 'cargos', 'artigo', 'termos', 'usuais', 'estudo', 'tarefa', 'ajudar', 'estado', 'efeito', 'modelo', 'quadro', 'ofício', 'diário', 'comuns', 'planos', 'futuro', 'atendo', 'fontes', 'mínimo', 'básica', 'sexual', 'mulher', 'oferta', 'humano', 'coleta', 'evento', 'chuvas', 'urbana', 'médico', 'favela', 'etnias', 'gênero', 'vítima', 'esgoto', 'visual', 'formal', 'animal', 'exceto', 'escopo', 'convém', 'utopia', 'sádico', 'escopo', 'ênfase', 'mérito', 'casual', 'anseio', 'hostil', 'cético', 'hétero', 'legado', 'pressa', 'alheio', 'gentil', 'nocivo', 'adesão', 'êxtase', 'também', 'sessão', 'julgar', 'hábito', 'embora', 'eficaz', 'ocioso', 'dispor', 'facção', 'cessão', 'abster', 'lúdico', 'objeto', 'isento', 'buscar', 'eximir', 'receio', 'avidez', 'vulgar', 'remoto', 'prazer', 'ciente', 'sempre', 'quando', 'diante', 'prover', 'esmero', 'dúvida', 'vedado', 'bíblia', 'coesão', 'rotina', 'crença', 'origem', 'grande', 'formos', 'perfil', 'credor', 'adepto', 'melhor', 'passar', 'coagir', 'menção', 'agonia', 'pensar']
+;
 const wordsAcceptedAsInput = [
   "aahed",
   "aalii",
@@ -127,6 +68,56 @@ const wordsAcceptedAsInput = [
   "abaka",
   "abamp",
 ];
+
+const pages = document.querySelectorAll("[pagina]");
+const form = document.querySelector("form");
+
+// adiciona ouvinte de eventos para o evento "click" nos links de navegação
+document.querySelectorAll(".link").forEach((link) => {
+  link.addEventListener("click", (event) => {
+    event.preventDefault();
+    const pagina = link.getAttribute("href").replace("#", "");
+    // oculta todas as páginas
+    pages.forEach((page) => {
+      page.style.display = "none";
+    });
+    // exibe a página correspondente ao link clicado
+    document.querySelector(`[pagina="${pagina}"]`).style.display = "block";
+  });
+});
+function validateEmail(email) {
+  const regex = /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/;
+  return regex.test(email);
+}
+
+form.addEventListener("submit", async (event) => {
+  event.preventDefault(); // impede que o formulário seja enviado e a página seja atualizada
+  const name = document.querySelector("#name").value;
+  const email = document.querySelector("#email").value;
+
+  if (name.trim() === "" || email.trim() === "") {
+    alert("Por favor, preencha todos os campos.");
+    return;
+  }
+
+  if (!validateEmail(email)) {
+    alert("Por favor, insira um e-mail válido.");
+    return;
+  }
+
+  document.querySelector('[pagina="game"]').style.display = "block";
+  document.querySelector('[pagina="home"]').style.display = "none";
+  const retorno = await getApiUrl("register", { name, email });
+  if (retorno.status === 200) {
+    alert("Cadastro realizado com sucesso! Bem vindo ao jogo!");
+    btnShare.style.visibility = "visible";
+    retorno.isPresent = true;
+    savePlayer(retorno);
+    console.log(retorno);
+    onInit();
+  }
+});
+
 
 function cloneState() {
   return {
