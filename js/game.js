@@ -753,8 +753,8 @@ function toggleModal(state) {
 function share() {
   const shareData = {
     title: "Venha Jogar",
-    text: "Me ajude a adivinhar a palavra",
-    url: location.host + "/?id=" + playerCurrent.id,
+    text: "Me ajude a adivinhar a palavra é muito fácil e divertido! ->",
+    url: "https://suas360.herokuapp.com/?id=" + playerCurrent.id,
   };
 
   if (navigator.share) {
