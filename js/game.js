@@ -927,8 +927,10 @@ async function onEndGame(toastDuration = 1.5e3) {
     });
   }, toastDuration);
   const retorno = getApiUrl("onEndGame", state.wordsTried.length);
-  if (retorno) {
-    onInit();
+  const isPresent = playerCurrent && playerCurrent.isPresent;
+  const rules = [isPresent ? state.gamesPlayed < 3 : true];
+  if (rules[0] && retorno.status == 200) {
+    window.location.reload();
   }
 }
 
