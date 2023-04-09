@@ -474,25 +474,15 @@ css Copy code .backdrop.show {
 }
 
 .overlay {
-  position: fixed;
+  position: absolute;
   z-index: 3000;
-  top: 0;
-  bottom: 0;
-  /* left: 15%;
-    right: 15%; */
+  left: 50%;
   background: #121213;
-  opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s ease-in;
-  padding: 0 20px;
-}
-
-@media (max-width: 740px) {
-  .overlay {
-    left: 0;
-    right: 0;
-    /* padding: 0 20px; */
-  }
+  padding: 0 10px;
+  transform: translateX(-50%);
+  opacity: 0;
 }
 
 .overlay.show {

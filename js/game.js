@@ -82,7 +82,7 @@ const wordsGuessable = [
   "jovens",
   "adulto",
   "filhos",
-  "central",
+  "centro",
   "grupos",
   "metodo",
   "funcao",
@@ -1032,8 +1032,10 @@ btnHowToPlay.addEventListener("click", (e) => {
   document.querySelector(".howtoplay").classList.add("show");
   document.querySelector(".settings").classList.remove("show");
 });
+
 const btnCloseHowToPlay = document.querySelector(".howtoplay-close");
 btnCloseHowToPlay.innerHTML = SVG_CLOSE;
+
 btnCloseHowToPlay.addEventListener("click", (e) => {
   document.querySelector(".overlay").classList.remove("show");
 });
