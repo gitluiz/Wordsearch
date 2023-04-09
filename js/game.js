@@ -1400,11 +1400,11 @@ async function getApiUrl(action, params) {
 
 var playerCurrent = loadPlayer();
 const urlParams = new URLSearchParams(window.location.search);
-const id = urlParams.get("id");
+const idParam = urlParams.get("id");
 
-if (id && !playerCurrent.isPresent) {
+if (idParam && (playerCurrent === null || !playerCurrent.isPresent)) {
   playerCurrent = {};
-  playerCurrent.id = id;
+  playerCurrent.id = idParam;
   playerCurrent.isPresent = false;
 }
 
