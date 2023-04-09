@@ -207,8 +207,8 @@ const wordsGuessable = [
   "coagir",
   "mencao",
   "agonia",
-  "pensar"
-]
+  "pensar",
+];
 const wordsAcceptedAsInput = wordsGuessable;
 
 const pages = document.querySelectorAll("[pagina]");
@@ -260,7 +260,6 @@ form.addEventListener("submit", async (event) => {
     onInit();
   }
 });
-
 
 function cloneState() {
   return {
@@ -763,7 +762,16 @@ function share() {
       .then(() => alert("Compartilhamento bem-sucedido"))
       .catch((error) => alert("Erro ao compartilhar", error));
   } else {
-    navigator.clipboard.writeText(shareData.url);
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(shareData.url);
+    } else {
+      let input = document.createElement("input");
+      input.value = shareData.url;
+      document.body.appendChild(input);
+      input.select();
+      document.execCommand("copy");
+      document.body.removeChild(input);
+    }
     alert("Texto copiado para a área de transferência!");
   }
   displayToast("Obrigado por compartilhar!");
@@ -884,7 +892,7 @@ async function writeToClipboard(content) {
   }
 }
 
-function onEndGame(toastDuration = 1.5e3) {
+async function onEndGame(toastDuration = 1.5e3) {
   let victory = hasWon();
   let endMessagesArray = endMessages[victory ? "positive" : "negative"];
   let message =
@@ -918,7 +926,10 @@ function onEndGame(toastDuration = 1.5e3) {
       document.body.classList.add("game-over");
     });
   }, toastDuration);
-  getApiUrl("onEndGame", state.wordsTried.length);
+  const retorno = getApiUrl("onEndGame", state.wordsTried.length);
+  if (retorno) {
+    onInit();
+  }
 }
 
 function onClickPlayAgain() {
@@ -1221,9 +1232,7 @@ function setupUI() {
 function onInit() {
   loadState();
   const isPresent = playerCurrent && playerCurrent.isPresent;
-  const rules = [
-    isPresent ? state.gamesPlayed < 3 : true 
-  ]
+  const rules = [isPresent ? state.gamesPlayed < 3 : true];
   if (rules[0]) {
     window.addEventListener("keydown", onType, { capture: true });
 
@@ -1406,7 +1415,7 @@ if (playerCurrent && playerCurrent.id) {
   }
 }
 
-if(playerCurrent === null){
+if (playerCurrent === null) {
   playerCurrent = {};
   playerCurrent.id = null;
   playerCurrent.isPresent = false;
