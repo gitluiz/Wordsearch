@@ -88,47 +88,21 @@ export default class RoomStoreLeaderboard {
 
   async addLeaderboardAc(codRoom, player) {
     try {
-      let top3 = await this.leaderboard(codRoom, "top3");
-      let top10 = await this.leaderboard(codRoom, "top10");
-
-      const stayOnTop3 =
-        top3 === false ||
-        top3.length < 3 ||
-        player.score > top3[top3.length - 1].score;
-
-      const stayOnTop10 =
-        top10 === false ||
-        top10.length < 10 ||
-        player.score > top10[top10.length - 1].score;
-
       // Obter a pontuação atual do jogador
       const currentScore = await this.redisClient.zscore(
         `top10_${codRoom}`,
         `${player.id}`
-      );
+      )
 
       const newScore = currentScore
-        ? parseInt(currentScore) + player.score
+        ? parseInt(currentScore || 0) + player.score
         : player.score;
 
-      if (stayOnTop3) {
-        await this.redisClient.zadd(
-          `top3_${codRoom}`,
-          newScore,
-          `${player.id}`
-        );
-        top3 = await this.leaderboard(codRoom, "top3");
-      }
-      if (stayOnTop10) {
-        await this.redisClient.zadd(
-          `top10_${codRoom}`,
-          newScore,
-          `${player.id}`
-        );
+      await this.redisClient.zadd(`top10_${codRoom}`, newScore, `${player.id}`);
 
-        top10 = await this.leaderboard(codRoom, "top10");
-      }
-      return { top3, top10 };
+      top10 = await this.leaderboard(codRoom, "top10");
+
+      return { top10 };
     } catch (error) {
       console.log(error);
       return null;

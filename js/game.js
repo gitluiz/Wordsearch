@@ -254,6 +254,7 @@ form.addEventListener("submit", async (event) => {
     alert("Cadastro realizado com sucesso! Bem vindo ao jogo!");
     btnShare.style.visibility = "visible";
     retorno.isPresent = true;
+    playerCurrent = retorno;
     savePlayer(retorno);
     console.log(retorno);
     onInit();
@@ -1404,4 +1405,9 @@ if (playerCurrent && playerCurrent.id) {
     btnShare.style.visibility = "visible";
   }
 }
-console.log(playerCurrent);
+
+if(playerCurrent === null){
+  playerCurrent = {};
+  playerCurrent.id = null;
+  playerCurrent.isPresent = false;
+}
