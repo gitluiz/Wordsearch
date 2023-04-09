@@ -134,6 +134,9 @@
 				</div>
 				<strong style="color: #c76b15;">Acerta tudo 1 pontos "Fim de Jogo!"</strong>
 				<br>
+				<h4>Dicionário</h4>
+				<ul id="palavras">
+				</ul>
 				<br>
 				<br>
 			</div>
@@ -163,6 +166,14 @@
 			src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7201091343317981"
 			crossorigin="anonymous"></script>
 	</div>
+	<script>
+		const listaPalavras = document.getElementById('palavras');
+		wordsGuessable.forEach(function (palavra) {
+			const itemLista = document.createElement('li');
+			itemLista.textContent = palavra;
+			listaPalavras.appendChild(itemLista);
+		});
+	</script>
 </body>
 
 </html>
