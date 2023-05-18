@@ -16,7 +16,7 @@ dotenv.config();
 const NODE_ENV = process.env.NODE_ENV || "production";
 const app = express();
 
-const originList = ["http://localhost:4500"];
+const originList = ["https://suas360.com.br", "http://localhost:4500"];
 
 const corsOptions = {
   origin: originList,
