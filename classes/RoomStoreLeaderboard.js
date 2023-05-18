@@ -100,7 +100,7 @@ export default class RoomStoreLeaderboard {
 
       await this.redisClient.zadd(`top10_${codRoom}`, newScore, `${player.id}`);
 
-      top10 = await this.leaderboard(codRoom, "top10");
+      const top10 = await this.leaderboard(codRoom, "top10");
 
       return { top10 };
     } catch (error) {
