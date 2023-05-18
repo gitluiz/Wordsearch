@@ -162,16 +162,16 @@ app.post("/register", async (req, res) => {
 });
 
 const middlewareSetRoom = function (req, res, next) {
-  const room = req.headers['room-name'] || "SUAS360";
+  const room = req.headers['room-name'] || (req.params && req.params.room) || "SUAS360";
   console.log("room", room, req.headers);
   req.roomname = room;
   next();
 };
 
-app.get("/ranking/:room", async (req, res) => {
+app.get("/ranking/:room", middlewareSetRoom, async (req, res) => {
   try {
-    const top3 = await redisRoomStore.leaderboardFull(req.roomname, "top3");
-    const top10 = await redisRoomStore.leaderboardFull(req.roomname, "top10");
+    const top3 = await redisRoomStore.leaderboardFull(req.params.room, "top3");
+    const top10 = await redisRoomStore.leaderboardFull(req.params.room, "top10");
 
     res.json({ top3, top10 });
   } catch (error) {
