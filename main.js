@@ -162,7 +162,7 @@ app.post("/register", async (req, res) => {
 });
 
 const middlewareSetRoom = function (req, res, next) {
-  const room = req.headers['room-id'] || "SUAS360";
+  const room = req.headers['room-name'] || "SUAS360";
   console.log("room", room, req.headers);
   req.room = room;
   next();
