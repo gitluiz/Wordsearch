@@ -162,12 +162,14 @@ app.post("/register", async (req, res) => {
 });
 
 const middlewareSetRoom = function (req, res, next) {
-  const room = (req.params.room = "SUAS360");
+  const room = req.headers['room-id'] || "SUAS360";
+  req.room = room;
   next();
 };
+
 app.get("/ranking/:room", async (req, res) => {
   try {
-    const codRoom = req.params.room;
+    const codRoom = req.room;
 
     const top3 = await redisRoomStore.leaderboardFull(codRoom, "top3");
     const top10 = await redisRoomStore.leaderboardFull(codRoom, "top10");
@@ -192,7 +194,7 @@ app.post("/register-play", middlewareSetRoom, async (req, res) => {
     const score = tabelaPonto[play.scoreRefer] || 0;
     const refer = play.refer || play.id;
 
-    const room = nameRoom(req.params.room);
+    const room = nameRoom(req.room);
     const player = {};
 
     // Buscar informações do usuário pelo e-mail
@@ -218,7 +220,7 @@ app.post("/register-play", middlewareSetRoom, async (req, res) => {
 
 // Adicionar jogador ao ranking
 app.post("/leaderboard/:room/add", middlewareSetRoom, async (req, res) => {
-  const room = nameRoom(req.params.room);
+  const room = nameRoom(req.room);
   const player = req.body;
   // Adicione o jogador ao ranking usando sua lógica atual
   const leaderboard = await redisRoomStore.addLeaderboard(room, player);
@@ -228,7 +230,7 @@ app.post("/leaderboard/:room/add", middlewareSetRoom, async (req, res) => {
 
 // Remover jogador do ranking
 app.post("/leaderboard/:room/remove", middlewareSetRoom, async (req, res) => {
-  const room = nameRoom(req.params.room);
+  const room = nameRoom(req.room);
   const player = req.body;
   // Remova o jogador do ranking usando sua lógica atual
   await redisRoomStore.removeLeaderboard(room, player);
@@ -238,7 +240,7 @@ app.post("/leaderboard/:room/remove", middlewareSetRoom, async (req, res) => {
 
 // Obter o ranking (Top 10)
 app.get("/leaderboard/:room/top10", middlewareSetRoom, async (req, res) => {
-  const room = nameRoom(req.params.room);
+  const room = nameRoom(req.room);
   // Obtenha o top 10 usando sua lógica atual
   const leaderboard = await redisRoomStore.leaderboard(room, "top10");
 
@@ -247,7 +249,7 @@ app.get("/leaderboard/:room/top10", middlewareSetRoom, async (req, res) => {
 
 // Obter o ranking (Top 3)
 app.get("/leaderboard/:room/top3", middlewareSetRoom, async (req, res) => {
-  const room = nameRoom(req.params.room);
+  const room = nameRoom(req.room);
   // Obtenha o top 3 usando sua lógica atual
   const leaderboard = await redisRoomStore.leaderboard(room, "top3");
 
