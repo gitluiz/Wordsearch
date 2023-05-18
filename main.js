@@ -44,7 +44,7 @@ const gameModel = function (socket, obj) {
   return {
     players: obj.players || [],
     connected: obj.connected || 0,
-    room: nameRoom(obj.room || "default"),
+    room: obj.room || "default",
     leaderboard: obj.leaderboard || [],
     leaderboardTop3: obj.leaderboardTop3 || [],
     refer: obj.refer || socket.id,
@@ -164,16 +164,14 @@ app.post("/register", async (req, res) => {
 const middlewareSetRoom = function (req, res, next) {
   const room = req.headers['room-name'] || "SUAS360";
   console.log("room", room, req.headers);
-  req.room = room;
+  req.roomname = room;
   next();
 };
 
 app.get("/ranking/:room", async (req, res) => {
   try {
-    const codRoom = req.room;
-
-    const top3 = await redisRoomStore.leaderboardFull(codRoom, "top3");
-    const top10 = await redisRoomStore.leaderboardFull(codRoom, "top10");
+    const top3 = await redisRoomStore.leaderboardFull(req.roomname, "top3");
+    const top10 = await redisRoomStore.leaderboardFull(req.roomname, "top10");
 
     res.json({ top3, top10 });
   } catch (error) {
@@ -194,8 +192,6 @@ app.post("/register-play", middlewareSetRoom, async (req, res) => {
     };
     const score = tabelaPonto[play.scoreRefer] || 0;
     const refer = play.refer || play.id;
-
-    const room = nameRoom(req.room);
     const player = {};
 
     // Buscar informações do usuário pelo e-mail
@@ -208,7 +204,7 @@ app.post("/register-play", middlewareSetRoom, async (req, res) => {
       player.score = (userInfo.score || 0) + score; // Adicionar a pontuação atual à pontuação acumulada
 
       // Adicione o jogador ao ranking usando sua lógica atual
-      const leaderboard = await redisRoomStore.addLeaderboardAc(room, player);
+      const leaderboard = await redisRoomStore.addLeaderboardAc(req.roomname, player);
 
       res.json(leaderboard);
     } else {
@@ -221,38 +217,34 @@ app.post("/register-play", middlewareSetRoom, async (req, res) => {
 
 // Adicionar jogador ao ranking
 app.post("/leaderboard/:room/add", middlewareSetRoom, async (req, res) => {
-  const room = nameRoom(req.room);
   const player = req.body;
   // Adicione o jogador ao ranking usando sua lógica atual
-  const leaderboard = await redisRoomStore.addLeaderboard(room, player);
+  const leaderboard = await redisRoomStore.addLeaderboard(req.roomname, player);
 
   res.json(leaderboard);
 });
 
 // Remover jogador do ranking
 app.post("/leaderboard/:room/remove", middlewareSetRoom, async (req, res) => {
-  const room = nameRoom(req.room);
   const player = req.body;
   // Remova o jogador do ranking usando sua lógica atual
-  await redisRoomStore.removeLeaderboard(room, player);
+  await redisRoomStore.removeLeaderboard(req.roomname, player);
 
   res.sendStatus(200);
 });
 
 // Obter o ranking (Top 10)
 app.get("/leaderboard/:room/top10", middlewareSetRoom, async (req, res) => {
-  const room = nameRoom(req.room);
   // Obtenha o top 10 usando sua lógica atual
-  const leaderboard = await redisRoomStore.leaderboard(room, "top10");
+  const leaderboard = await redisRoomStore.leaderboard(req.roomname, "top10");
 
   res.json(leaderboard);
 });
 
 // Obter o ranking (Top 3)
 app.get("/leaderboard/:room/top3", middlewareSetRoom, async (req, res) => {
-  const room = nameRoom(req.room);
   // Obtenha o top 3 usando sua lógica atual
-  const leaderboard = await redisRoomStore.leaderboard(room, "top3");
+  const leaderboard = await redisRoomStore.leaderboard(req.roomname, "top3");
 
   res.json(leaderboard);
 });
