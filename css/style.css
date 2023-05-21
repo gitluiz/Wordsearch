@@ -422,7 +422,7 @@ css Copy code .backdrop.show {
 
 .distribution {
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: auto;
   grid-gap: 4px 8px;
   width: 100%;
   margin-top: 32px;
@@ -432,7 +432,7 @@ css Copy code .backdrop.show {
 }
 
 .distribution::after {
-  content: "Distribuição de Palpites";
+  content: "________________________________";
   position: absolute;
   left: 50%;
   transform: translateX(-50%);

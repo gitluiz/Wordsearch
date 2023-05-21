@@ -5,6 +5,9 @@
 	<meta charset="UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+	<meta http-equiv="Pragma" content="no-cache">
+	<meta http-equiv="Expires" content="0">
 	<meta name="mobile-web-app-capable" content="yes">
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="application-name" content="SUAS360">
@@ -13,11 +16,14 @@
 	<meta name="msapplication-navbutton-color" content="#ffffff">
 	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 	<meta name="msapplication-starturl" content="/">
-	<link rel="manifest" href="/manifest.json">
-	<link rel="icon" href="assets/icon/favicon.ico" sizes="any">
-	<link rel="apple-touch-icon" href="assets/icon/icon-192x192.png">
+	<meta property="og:image" content="https://suas360.com.br/wp-content/uploads/2023/04/18-576x1024.png">
+	<meta property="og:title" content="SUAS360 Game">
+	<meta property="og:description" content="O SUAS 360 é um evento voltado aos trabalhadores, gestores e técnicos do SUAS, mas também para aqueles profissionais que querem trabalhar na política de assistência social em nosso país. ">
+	<link rel="manifest" href="./manifest.json">
+	<link rel="icon" href="./assets/" sizes="any">
+	<link rel="apple-touch-icon" href="./assets/icon/icon-192x192.png">
 	<!-- <link href="css/bootstrap.min.css" rel="stylesheet"> -->
-	<link href="css/style.css" rel="stylesheet">
+	<link href="./css/style.css" rel="stylesheet">
 	<title>SUAS360 Game</title>
 </head>
 
@@ -56,7 +62,7 @@
 			<div class="end-actions">
 				<span id="word-answer"></span>
 				<span>Resposta</span>
-				<button id="playagain" tabindex="-1" onclick="onClickPlayAgain()">Jogar<br>Novamente</button>
+				<button id="playagain" tabindex="-1" onclick="onClickPlayAgain(true)">Jogar<br>Novamente</button>
 			</div>
 		</div>
 
@@ -92,7 +98,10 @@
 				</div>
 				<span>A letra "P" está na palavra e na posição correta.</span>
 				<span>A letra "S" está na palavra, mas na posição errada.</span>
-				<strong style="color: #0066ff;">Acerta tudo 8 pontos "Fim de Jogo!"</strong>
+				<div>
+					<br>
+					<strong style="color: #0066ff;">Acerta tudo 8 pontos "Fim de Jogo!"</strong>
+				</div>
 				<div style="display: flex;" class="letters-example">
 					<div style="border:none">2ª</div>
 					<div style="background: #538d4e; border-color: #538d4e;">P</div>
@@ -104,7 +113,12 @@
 				</div>
 				<span>A letra "P" deve ficar na posição correta.</span>
 				<span>A letra "R" e "A" está na palavra, mas na posição errada.</span>
-				<strong style="color: #48f150;">Acerta tudo 5 pontos "Fim de Jogo!"</strong>
+				<div>
+					<br>
+					<strong style="color: #0066ff;">
+						Acerta tudo 5 pontos "Fim de Jogo!"
+					</strong>
+				</div>
 				<div style="display: flex;" class="letters-example">
 					<div style="border:none">3ª</div>
 					<div style="background: #538d4e; border-color: #538d4e;">P</div>
@@ -115,7 +129,12 @@
 					<div style="background: #538d4e; border-color: #538d4e;">A</div>
 				</div>
 				<span>A letra U não está na palavra em nenhuma posição.</span>
-				<strong style="color: #f3e521;">Acerta tudo 3 pontos "Fim de Jogo!"</strong>
+				<div>
+					<br>
+					<strong style="color: #0066ff;">
+						Acerta tudo 3 pontos "Fim de Jogo!"
+					</strong>
+				</div>
 				<div style="display: flex;" class="letters-example">
 					<div style="border:none">4ª</div>
 					<div style="background: #538d4e; border-color: #538d4e;">P</div>
@@ -126,16 +145,26 @@
 					<div style="background: #538d4e; border-color: #538d4e;">R</div>
 				</div>
 				<span>Sucesso!!</span>
-				<strong style="color: #c79715;">Acerta tudo 2 pontos "Fim de Jogo!"</strong>
+				<div>
+					<br>
+					<strong style="color: #0066ff;">
+						Acerta tudo 2 pontos "Fim de Jogo!"
+					</strong>
+				</div>
 				<div style="display: flex;" class="letters-example">
 					<div style="border:none">5ª</div>
 					<div style="border:none">e</div>
 					<div style="border:none">6ª</div>
 				</div>
-				<strong style="color: #c76b15;">Acerta tudo 1 pontos "Fim de Jogo!"</strong>
+				<div>
+					<br>
+					<strong style="color: #0066ff;">
+						Acerta tudo 1 pontos "Fim de Jogo!"
+					</strong>
+				</div>
 				<br>
 				<h4>Dicionário</h4>
-				<ul id="palavras">
+				<ul id="palavras" style="column-count: 5;list-style: none;padding: 0;">
 				</ul>
 				<br>
 				<br>
@@ -159,13 +188,8 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 	<script src="https://unpkg.com/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
 	<script src="https://unpkg.com/tippy.js@6.3.2/dist/tippy-bundle.umd.min.js"></script>
-	<script src="js/game.js"></script>
+	<script src="js/game.js?v3"></script>
 
-	<div>
-		<script async
-			src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7201091343317981"
-			crossorigin="anonymous"></script>
-	</div>
 	<script>
 		const listaPalavras = document.getElementById('palavras');
 		wordsGuessable.forEach(function (palavra) {

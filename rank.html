@@ -12,12 +12,12 @@
 	<meta name="theme-color" content="#ffffff">
 	<meta name="msapplication-navbutton-color" content="#ffffff">
 	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-	<meta name="msapplication-starturl" content="/">
-	<link rel="manifest" href="/manifest.json">
-	<link rel="icon" href="assets/icon/favicon.ico" sizes="any">
-	<link rel="apple-touch-icon" href="assets/icon/icon-192x192.png">
+	<meta name="msapplication-starturl" content="./">
+	<link rel="manifest" href="./manifest.json">
+	<link rel="icon" href="./assets/icon/favicon.ico" sizes="any">
+	<link rel="apple-touch-icon" href="./assets/icon/icon-192x192.png">
 	<!-- <link href="css/bootstrap.min.css" rel="stylesheet"> -->
-	<link href="css/style.css" rel="stylesheet">
+	<link href="./css/style.css" rel="stylesheet">
 	<title>SUAS360 Game</title>
 	<style>
 		table {
@@ -40,7 +40,7 @@
 			<button id="howtoplay"></button>
 		</div>
 		<div class="title">
-			<img src="assets/logo-branca-1536x289.png" alt="Caça-Palavra" style="width: 100%;">
+			<img src="./assets/logo-branca-1536x289.png" alt="Caça-Palavra" style="width: 100%;">
 			<!-- <span>Caça-Palavra</span> -->
 		</div>
 	</div>
@@ -61,9 +61,11 @@
 		</table>
 
 		<script>
+			const urlServidor = "https://suas360.herokuapp.com";
+			const urlGame = "https://suas360.com.br/game";
 			async function fetchRanking() {
-				const codRoom = 'SUAS360';
-				const response = await fetch(`/ranking/${codRoom}`);
+				const codRoom = 'SUAS360EVENTO';
+				const response = await fetch(urlServidor + `/ranking/${codRoom}`);
 				const data = await response.json();
 				return data.top10;
 			}
@@ -71,24 +73,34 @@
 			async function displayRanking() {
 				const ranking = await fetchRanking();
 				const tableBody = document.querySelector('#ranking tbody');
+				if(ranking && ranking.length > 0){
 
-				ranking.forEach((player, index) => {
+					ranking.forEach((player, index) => {
+						const row = document.createElement('tr');
+						
+						const positionCell = document.createElement('td');
+						positionCell.textContent = index + 1;
+						row.appendChild(positionCell);
+						
+						const nicknameCell = document.createElement('td');
+						nicknameCell.textContent = player.name + ' \n\n' + player.email;
+						row.appendChild(nicknameCell);
+						
+						const scoreCell = document.createElement('td');
+						scoreCell.textContent = player.score;
+						row.appendChild(scoreCell);
+						
+						tableBody.appendChild(row);
+					});
+				} else {
 					const row = document.createElement('tr');
-
-					const positionCell = document.createElement('td');
-					positionCell.textContent = index + 1;
-					row.appendChild(positionCell);
-
-					const nicknameCell = document.createElement('td');
-					nicknameCell.textContent = player.name + ' \n\n' + player.email;
-					row.appendChild(nicknameCell);
-
-					const scoreCell = document.createElement('td');
-					scoreCell.textContent = player.score;
-					row.appendChild(scoreCell);
-
+					const cell = document.createElement('td');
+					cell.textContent = 'Nenhum jogador encontrado';
+					cell.colSpan = 3;
+					cell.style.textAlign = 'center';
+					row.appendChild(cell);
 					tableBody.appendChild(row);
-				});
+				}
 			}
 
 			displayRanking();

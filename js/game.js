@@ -1,3 +1,5 @@
+const urlServidor = "https://suas360.herokuapp.com";
+const urlGame = "https://suas360.com.br/game";
 const dictionaries = {};
 const state = {
   config: {
@@ -610,12 +612,12 @@ function makeAttempt(word) {
       displayToast("Letras insuficientes");
     }
     return;
-  } else if (
-    !dictionary ||
-    (!dictionary.wordsGuessable.has(word) &&
-      !dictionary.wordsAcceptable.has(word))
-  ) {
-    return displayToast("Palavra que não está no dicionário");
+    // } else if (
+    //   !dictionary ||
+    //   (!dictionary.wordsGuessable.has(word) &&
+    //     !dictionary.wordsAcceptable.has(word))
+    // ) {
+    //   return displayToast("Palavra que não está no dicionário");
   } else if (state.wordsTried.includes(word)) {
     return displayToast("Adivinhação de palavras repetidas");
   } else if (isGameOver()) {
@@ -753,7 +755,7 @@ function share() {
   const shareData = {
     title: "Venha Jogar",
     text: "Me ajude a adivinhar a palavra é muito fácil e divertido! ->",
-    url: "https://suas360.herokuapp.com/?id=" + playerCurrent.id,
+    url: urlGame + "/?id=" + playerCurrent.id,
   };
 
   if (navigator.share) {
@@ -782,43 +784,72 @@ function setupEndGameModal() {
   let modalContent = document.querySelector(".modal-content");
   Array.from(modalContent.children).forEach((node) => node.remove());
   if (title) {
-    title.innerHTML = "Estatisticas";
+    //title.innerHTML = "Estatisticas";
+    title.innerHTML = "SEU RESULTADO";
   }
-  let statisticsGrid = document.createElement("div");
-  statisticsGrid.classList.add("statistics");
-  for (let label of [
-    state.gamesPlayed,
-    "Jogada",
-    state.gamesWon,
-    "Jogos\nGanhos",
-    ((state.gamesWon / state.gamesPlayed) * 100 || 0).toFixed(0),
-    "Ganhar %",
-    state.victoryStreak,
-    "Sequência\nAtual",
-    state.victoryStreakRecord,
-    "Máx\nFaixa",
-  ]) {
-    let span = document.createElement("span");
-    span.textContent = label;
-    statisticsGrid.append(span);
-  }
-  modalContent.append(statisticsGrid);
+  // let statisticsGrid = document.createElement("div");
+  // statisticsGrid.classList.add("statistics");
+  // for (let label of [
+  //   state.gamesPlayed,
+  //   "Jogada",
+  //   state.gamesWon,
+  //   "Jogos\nGanhos",
+  //   ((state.gamesWon / state.gamesPlayed) * 100 || 0).toFixed(0),
+  //   "Ganhar %",
+  //   state.victoryStreak,
+  //   "Sequência\nAtual",
+  //   state.victoryStreakRecord,
+  //   "Máx\nFaixa",
+  // ]) {
+  //   let span = document.createElement("span");
+  //   span.textContent = label;
+  //   statisticsGrid.append(span);
+  // }
+  // modalContent.append(statisticsGrid);
+
+  const tabelaPonto = {
+    1: 8,
+    2: 5,
+    3: 3,
+    4: 2,
+    5: 1,
+    6: 0,
+  };
+
   let distributionGrid = document.createElement("div");
   distributionGrid.classList.add("distribution");
-  let bestGuessed = Math.max(...Object.values(state.guessDistribution));
+  distributionGrid.style.width = "300px";
+  distributionGrid.style.textAlign = "center";
+  //let bestGuessed = Math.max(...Object.values(state.guessDistribution));
   for (let attempt = 1; attempt <= state.config.attempts; attempt++) {
-    let attemptLabel = document.createElement("span");
-    attemptLabel.innerText = String(attempt);
-    let distributionDiv = document.createElement("div");
-    let distributionLabel = document.createElement("span");
-    let distribution = state.guessDistribution[attempt] || 0;
-    distributionDiv.style.width =
-      6 + Math.floor((distribution / bestGuessed) * 94) + "%";
-    distributionDiv.style.background =
-      hasWon() && attempt === state.wordsTried.length ? "#538d4e" : "#3a3a3c";
-    distributionLabel.innerText = distribution;
-    distributionDiv.append(distributionLabel);
-    distributionGrid.append(attemptLabel, distributionDiv);
+    // let attemptLabel = document.createElement("h3");
+    // attemptLabel.innerText = String(tabelaPonto[attempt]);
+    //attemptLabel.innerText = String(attempt);
+    // let distributionDiv = document.createElement("div");
+    // let distributionLabel = document.createElement("span");
+    // let distribution = state.guessDistribution[attempt] || 0;
+    // distributionDiv.style.width =
+    //   6 + Math.floor((distribution / bestGuessed) * 94) + "%";
+    // distributionDiv.style.background =
+    //   hasWon() && attempt === state.wordsTried.length ? "#538d4e" : "#3a3a3c";
+    // distributionLabel.innerText = distribution;
+    // distributionDiv.append(distributionLabel);
+    if (attempt === state.wordsTried.length) {
+      distributionGrid.append(
+        "Você conseguiu ",
+        String(tabelaPonto[attempt]),
+        " ponto(s). Compartilhe com seus amigos e veja quem consegue mais pontos!"
+      );
+    }
+  }
+  if (playerCurrent.isPresent) {
+    let botaoCompartilhar = document.createElement("button");
+    botaoCompartilhar.classList.add("btn");
+    botaoCompartilhar.classList.add("btn-primary");
+    botaoCompartilhar.classList.add("btn-block");
+    botaoCompartilhar.innerText = "Compartilhar";
+    botaoCompartilhar.addEventListener("click", share);
+    modalContent.append(botaoCompartilhar);
   }
   modalContent.append(distributionGrid);
 }
@@ -928,13 +959,18 @@ async function onEndGame(toastDuration = 1.5e3) {
   }, toastDuration);
   const retorno = getApiUrl("onEndGame", state.wordsTried.length);
   const isPresent = playerCurrent && playerCurrent.isPresent;
-  const rules = [isPresent ? state.gamesPlayed < 3 : true];
+  const rules = [isPresent ? state.gamesPlayed >= 3 : state.gamesPlayed >= 1];
   if (rules[0] && retorno.status == 200) {
-    window.location.reload();
+    fimDeJogo();
   }
 }
 
-function onClickPlayAgain() {
+function onClickPlayAgain(isBtn) {
+  const isPresent = playerCurrent && playerCurrent.isPresent;
+  const rules = [isPresent ? state.gamesPlayed >= 3 : state.gamesPlayed >= 1];
+  if (rules[0] && isBtn) {
+    fimDeJogo();
+  }
   if (
     document.body.classList.contains("game-over") &&
     document
@@ -1236,8 +1272,11 @@ function setupUI() {
 function onInit() {
   loadState();
   const isPresent = playerCurrent && playerCurrent.isPresent;
-  const rules = [isPresent ? state.gamesPlayed < 3 : true];
+  //
+  const rules = [isPresent ? state.gamesPlayed >= 3 : state.gamesPlayed >= 1];
   if (rules[0]) {
+    fimDeJogo();
+  } else {
     window.addEventListener("keydown", onType, { capture: true });
 
     setupDictionary();
@@ -1273,11 +1312,13 @@ function onInit() {
         }
       }, 1e3);
     }
-  } else {
-    document.querySelector(".game").classList.add("game-over-p2");
-    document.querySelector(".game").innerText =
-      "Jogo finalizado.\nObrigado por jogar!";
   }
+}
+
+function fimDeJogo() {
+  document.querySelector(".game").classList.add("game-over-p2");
+  document.querySelector(".game").innerText =
+    "Jogo finalizado.\nObrigado por jogar!";
 }
 
 function addWordToDict(word, guessable) {
@@ -1301,10 +1342,11 @@ async function getApiUrl(action, params) {
   let retorno = null;
   if (action === "register") {
     try {
-      const response = await fetch("/register", {
+      const response = await fetch(urlServidor + "/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "room-name": "SUAS360EVENTO",
         },
         body: JSON.stringify(params),
       });
@@ -1326,10 +1368,11 @@ async function getApiUrl(action, params) {
   }
   if (action === "onEndGame") {
     try {
-      const response = await fetch("/register-play", {
+      const response = await fetch(urlServidor + "/register-play", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "room-name": "SUAS360EVENTO",
         },
         body: JSON.stringify({
           id: playerCurrent.id,
@@ -1354,10 +1397,11 @@ async function getApiUrl(action, params) {
 
   if (action === "leaderboardAdd") {
     // Adicionar jogador ao ranking
-    fetch(`//${room}/add`, {
+    fetch(urlServidor + `/${room}/add`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "room-name": "SUAS360EVENTO",
       },
       body: JSON.stringify(player),
     })
@@ -1368,10 +1412,11 @@ async function getApiUrl(action, params) {
   }
   if (action === "leaderboardRemove") {
     // Remover jogador do ranking
-    fetch(`/leaderboard/${room}/remove`, {
+    fetch(urlServidor + `/leaderboard/${room}/remove`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "room-name": "SUAS360EVENTO",
       },
       body: JSON.stringify(player),
     }).then(() => {
@@ -1381,7 +1426,12 @@ async function getApiUrl(action, params) {
 
   if (action === "leaderboardTop10") {
     // Obter o ranking (Top 10)
-    fetch(`/leaderboard/${room}/top10`)
+    fetch(urlServidor + `/leaderboard/${room}/top10`, {
+      headers: {
+        "Content-Type": "application/json",
+        "room-name": "SUAS360EVENTO",
+      },
+    })
       .then((res) => res.json())
       .then((leaderboard) => {
         // Atualize a tabela de classificação no cliente com o top 10
@@ -1389,7 +1439,12 @@ async function getApiUrl(action, params) {
   }
   if (action === "leaderboardTop3") {
     // Obter o ranking (Top 3)
-    fetch(`/leaderboard/${room}/top3`)
+    fetch(urlServidor + `/leaderboard/${room}/top3`, {
+      headers: {
+        "Content-Type": "application/json",
+        "room-name": "SUAS360EVENTO",
+      },
+    })
       .then((res) => res.json())
       .then((leaderboard) => {
         // Atualize a tabela de classificação no cliente com o top 3
